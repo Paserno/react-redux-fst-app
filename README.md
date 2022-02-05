@@ -106,3 +106,61 @@ html, body {
 }
 ````
 ---- 
+### 2.- Estilos de AuthRouter
+Se agregan algunos estilos de __SASS__ para __AuthRouter__.
+
+Paso a Seguir
+* Crear elementos __SCSS__.
+* Implementar clases y `<div>` en __AutRouter__.
+* Crear estructura de __LoginScreen__.
+
+En `routers/AuthRouter.js`
+* Se agrega la clase `auth__main` y un `<div>` adicional con la clase `auth__box-container`.
+````
+return (
+        <div className="auth__main">
+            <div className="auth__box-container">
+                <Switch>
+                    <Route path="/auth/login" component={LoginScreen} />
+                    <Route path="/auth/register" component={RegisterScreen} />
+
+                    <Redirect to="/auth/login" />
+                </Switch>
+
+            </div>
+        </div>
+    )
+````
+En `components/auth/LoginScreen.js`
+* Creamos un formulario dentro del return del componente __LoginScreen__, con 2 input y un boton.
+````
+<>
+    <h3>Login</h3>
+
+    <form>
+
+    <input 
+        type="text"
+        placeholder="email"
+        name="email"
+    />
+
+    <input 
+        type="password"
+        placeholder="Password"
+        name="password"
+    />
+
+    <button
+        type="submit"
+    >
+        Login                
+    </button>
+
+    <hr/>
+    Google
+
+    </form>  
+</>
+````
+----
