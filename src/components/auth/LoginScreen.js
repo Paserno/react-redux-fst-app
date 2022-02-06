@@ -34,7 +34,7 @@ export const LoginScreen = () => {
 
                 {/* <hr /> */}
                 <div className="auth__social-networks">
-                <p>Login with social networks</p>
+                <p className="auth__p">Login with social networks</p>
                 <div
                     className="google-btn"
                 >
@@ -46,7 +46,7 @@ export const LoginScreen = () => {
                     </p>
                 </div>
             </div>
-            <Link to="/auth/register" className="register-btn"
+            <Link to="/auth/register" className="register-btn link"
             >
                 Create new acount
             </Link>
