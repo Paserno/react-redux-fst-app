@@ -164,3 +164,21 @@ En `components/auth/LoginScreen.js`
 </>
 ````
 ----
+## 3.- Componente Adicionales
+Se crearon diferentes componente en la aplicación y con ayuda se SASS se estilizo:
+
+Pasos a Seguir
+* Crear 📂carpeta `notes/` que se almacenará algunos componentes nuevos.
+    * Se crea el componente __NotesAppBar__ en `components/notes/NotesAppBar.js`.
+    * Se crea el componente __NotesScreen__ en `components/notes/NotesScreen.js`.
+* Componentes adicionales en el directorio `journal/` con los componentes SASS correspondientes.
+    * Componente __JournalEntries__ agregado.
+    * Componente __JournalEntry__ agregado.
+    * Componente __NothingSelected__ agregado.
+    * Componente __Sidbar__ agregado.
+
+
+
+En estos puntos simplemente se creo la estructura base con el diseño.
+
+----
