@@ -1,3 +1,4 @@
+import { JournalEntries } from "./JournalEntries";
 
 
 export const Sidbar = () => {
