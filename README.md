@@ -2,7 +2,12 @@
 # App de React con SASS - Redux - Firebase
 App de diario que tiene la función de grabar lo que sucede en la vida, la primera parte sera la Estructura y Diseño con __SASS__. Uso de los siguientes elementos
 
+SASS
 * __[Node SASS](https://www.npmjs.com/package/node-sass)__
+
+Redux
+* __[Redux](https://es.redux.js.org)__
+* __[React Redux](https://react-redux.js.org)__
 
 
 
@@ -181,4 +186,84 @@ Pasos a Seguir
 
 En estos puntos simplemente se creo la estructura base con el diseño.
 
+----
+# Redux - Autenticación
+En este punto de la aplicaición se implementará Redux, para esto se descargará y usará, ademas de añadir la funciónalidad del Login y Register.
+
+<img src="https://redux.js.org/img/redux-logo-landscape.png" alt="Logo Redux" width="320"/>
+
+----
+### 1.- Implementación de Redux
+Se crea los archivos donde se dejará el Reducer ademas de otros elementos.
+
+Pasos a Seguir:
+* Crear __types__ en `types/types.js`.
+* Crear __store__ en `store/store.js` que usará __Redux__.
+* Crear __authReducer__ en `reducers/aithReducer.js` que estará el reducer de la aplicación.
+* Modificar __JournalApp__, para proveer información.
+
+En `types/types.js`
+* Se crea la centralización de las opciones que se usaran en el Reducer.
+````
+export const types = {
+
+    login: '[Auth] Login',
+    logout: '[Auth] Logout',
+}
+````
+En `reducers/authReducer.js`
+* Se realiza la importación de los types.
+````
+import { types } from "../types/types";
+````
+* Se crea el reducer para la autenticación de la aplicación, recibiendo como parametros el estado y la acción.
+* Se implementa las dos principales acciones, de login y logout.
+````
+export const authReducer = ( state = {}, action ) => {
+
+    switch ( action.type ) {
+        case types.login:
+          return {
+              uid: action.payload.uid,
+              name: action.payload.displayName
+          }
+        
+        case types.logout:
+                return { }
+           
+        default:
+            return state;
+    }
+}
+````
+En `store/store.js`
+* Se importan elementos propios de __Redux__ como el __createStore__,  __combineReducers__ y agregamos la importación del reducer creado.
+````
+import { createStore, combineReducers } from 'redux';
+import { authReducer } from '../reducers/authReducer';
+````
+* Este elemento combinará los diferentes reducer que se cree en la aplicación.
+````
+const reducers = combineReducers({
+    auth: authReducer
+})
+````
+* Este elemento recibirá un reducer.
+````
+export const store = createStore(reducers);
+````
+En `JournalApp`
+* Se hara la imprtación de __Provider__ que viene de React Redux y el __store__ que se creo recientemente.
+````
+import { Provider } from 'react-redux';
+
+import { AppRouter } from "./routers/AppRouter";
+import { store } from './store/store';
+````
+* Este elemento __Provider__ hace lo mismo que el Context, proveer información a la aplciación, para esto le mandamos el __store__.
+````
+<Provider store={ store }>
+    <AppRouter />
+</Provider>
+````
 ----
