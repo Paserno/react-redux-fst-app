@@ -7,11 +7,14 @@ import { LoginScreen } from "../components/auth/LoginScreen";
 import { RegisterScreen } from "../components/auth/RegisterScreen";
 
 
+
 export const AuthRouter = () => {
+    const pathImage = require.context('../assets', true);
     return (
-        <div className="auth__main">
+        <div className="auth__main ">
+            <div className="auth__background"></div>
             <img 
-                src="https://pixabay.com/get/g783870eddca2adde9028e82262bfa2335ecb7e1b5d20553db045078ca460b809136d25be39c518f0c04286cb47769712.jpg"  
+                src={pathImage('./fondo.jpg')} 
                 alt="Fondo"
                 className="auth__main-back"
             />
@@ -25,6 +28,7 @@ export const AuthRouter = () => {
                 </Switch>
 
             </div>
+            
         </div>
     )
 };

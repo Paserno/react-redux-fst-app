@@ -7,7 +7,8 @@
     height: 100vh;
     width: 100vw;
 }
-.auth__main-back{
+//* imganen
+.auth__main-back{ 
     height: 100vh;
     width: 100vw;
     z-index: 0;
@@ -15,13 +16,20 @@
     object-fit: cover;    
 
 }
+.auth__background{
+    height: 100vh;
+    width: 100vw;
+    background: $transparent;
+    z-index: 1;
+    position: absolute;
+}
 .auth__box-container{
     background-color: $dark-react;
     box-shadow: 3px 3px lighten($color: $dark-react, $amount: 10);
     border-radius: 2px;
     padding: 20px;
     width: 250px;
-    z-index: 1;
+    z-index: 2;
 
 
     background: rgba( 40, 44, 52, 0.854 );
