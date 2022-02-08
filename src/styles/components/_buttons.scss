@@ -29,6 +29,11 @@
     }
 
     &:hover{
+        box-shadow: 0 0 5px $primary;
+        color: white
+    }
+    
+    &:active{
         background-color: darken($color: $primary, $amount: 12);
     }
 }
