@@ -278,3 +278,101 @@ export const store = createStore(
 );
 ````
 ----
+### 2.- Redux - dispatch para Store
+Se agregará un CustomHook para el formulario de login, para luego crear la primera acción que se activará con el Hook de __React Redux__ que es llamado __useDispatch__.
+
+Pasos a Seguir:
+* Crear CustomHook llamado __useForm__.
+* Crear el primer action de __auth__.
+* Implementar __useForm__ y __useDispatch__ en el componente __LoginScreen__.
+
+En `hooks/useForm`
+* Importamos el __useState__.
+* Creamos el hook, y recibimos por parametro el `initialState` que estará igualado a un objeto vacío.
+* Implementamos el useState, recibiendo el `initialState`.
+* Creamos la función `rest` que deja el useState con el estado original.
+* Y creamos la función `handleInputChange` que recibe por parametro `target`.
+    * Esta función es para permitir que se escriba en el formulario, recibiendo el estado que tenga y agregandole el valor que se le vaya ingresando.
+* Finalmente se retorna el `value`, y las dos funciones.
+````
+import { useState } from 'react';
+
+export const useForm = ( initialState = {} ) => {
+    const [values, setValues] = useState(initialState);
+
+    const rest = () => {
+        setValues( initialState );
+    }
+
+    const handleInputChange = ({ target }) => {
+        setValues({
+            ...values,
+            [ target.name ]: target.values
+        });
+    }
+
+    return [ values, handleInputChange, rest ];
+}
+````
+En `actions/auth.js`
+* Importamos los types.
+````
+import { types } from '../types/types'
+````
+* En el actions de login, se recibira por parametro el `uid` y `displayName`.
+* Luego se retornará que acción se ejecutará, que vendría en el `type` y en el payload se recibe el `uid` y `displayName` que es requerido en el Reducer.
+````
+export const login = (uid, displayName) => {
+    return {
+        type: types.login,
+        payload: {
+            uid,
+            displayName
+        }
+    }
+}
+````
+En `components/auth/LoginScreen`
+* Importamos 3 elementos nuevos, el Hook de __React Redux__ llamado __useDispatch__, login que corresponde a la acción y __useForm__ el CustomHook.
+```` 
+import { useDispatch } from 'react-redux';
+
+import { Link } from 'react-router-dom';
+import { login } from '../../actions/auth';
+import { useForm } from '../../hooks/useForm';
+```` 
+* Se recibe el __useDispatch__ en una constante.
+* Se implementa el CustomHook __useForm__ y se la da valores iniciales como el `email` y `password`.
+    * Luego se desestructura el `email` y `password` del __formValue__.
+* Se crea una función `handleLogin`, para mandarle el __dispatch__ con los valores requeridos. 
+````
+const dispatch = useDispatch(); 
+const [ formValue, handleInputChange ] = useForm({
+    email: 'hola@gmail.com',
+    password: '123456'
+});
+const { email, password } = formValue;
+
+const handleLogin = (e) => {
+    e.preventDefault();
+    dispatch( login(12345, 'Felipe') );
+    
+}
+````
+* Se le agrega la función al `<form>`, se le pasa los valores a los input ademas de la función `handleInputChage` que viene del CustomHook __useForm__. 
+````
+<form onSubmit={ handleLogin }>
+
+                <input
+                    ...
+                    value={ email }
+                    onChange={ handleInputChange }
+                />
+
+                <input
+                    ...
+                    value={ password }
+                    onChange={ handleInputChange }
+                />
+````
+----
