@@ -9,6 +9,10 @@ Redux
 * __[Redux](https://es.redux.js.org)__
 * __[React Redux](https://react-redux.js.org)__
 
+FireBase
+* __[Firebase](https://firebase.google.com)__
+* Documentación para Actualizar __[Firebase Web 8 a 9](https://firebase.google.com/docs/auth/web/start#web-version-8)__
+
 
 
 ----
