@@ -8,6 +8,7 @@ SASS
 Redux
 * __[Redux](https://es.redux.js.org)__
 * __[React Redux](https://react-redux.js.org)__
+* __[Redux Thunk](https://www.npmjs.com/package/redux-thunk)__
 
 FireBase
 * __[Firebase](https://firebase.google.com)__
@@ -378,5 +379,75 @@ const handleLogin = (e) => {
                     value={ password }
                     onChange={ handleInputChange }
                 />
+````
+----
+### 3.- Configuración Redux Thunk
+Se instalo Thunk, la cual es un __middleware__ para Redux. Permite escribir funciones con lógica interna que puede interactuar con el __stone__ de Redux.
+
+Pasos a Seguir:
+* Agregar configuración __[Redux DevTools Extension](https://github.com/reduxjs/redux-devtools/tree/main/extension#1-for-chrome)__ para poder utilizar la herramienta y ademas del Redux Thunk.
+* En `actions/auth.js` agregamos el disparador asincronico gracias a la ayuda de __Thunk__ con un callback.
+* En el componente __LoginScreen__ se incluye el __dispatch__ con la función asincronico que retorna el callback.
+
+
+En `store/store.js`
+* Importamos 2 elementos adicionales de Redux que son `applyMiddleware` y `compose`.
+* Finalmente importamos __thunk__ el __middleware__ que permitirá acciones asincronicas.
+````
+import { createStore, combineReducers, applyMiddleware, compose } from 'redux';
+import thunk from 'redux-thunk'
+
+import { authReducer } from '../reducers/authReducer';
+````
+* Agregar la configuración de __[Redux DevTools Extension](https://github.com/reduxjs/redux-devtools/tree/main/extension#1-for-chrome)__ para permitir que la herramienta Redux Devtool con __Thunk__ pueda usarse.
+````
+const composeEnhancers =
+  (typeof window !== 'undefined' &&
+    window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) ||
+  compose;
+
+const reducers = combineReducers({
+    auth: authReducer
+})
+````
+* Agregamos al store la nueva configuración `composeEnhancers()` agregando el __thunk__ con `applyMiddleware()`. 
+````
+export const store = createStore(
+    reducers,
+    composeEnhancers(
+        applyMiddleware( thunk )
+    )
+);
+````
+En `actions/auth.js`
+* Agregamos acciones asincrona para el __dispatch__ con un callback, recibiendo por los parametros del return el dispatch, con el callback de 3.5s, y enviamos algunos datos al login.
+````
+export const startLoginEmailPassword = (email, password) => {
+    return (dispatch) => {
+
+        setTimeout(() => {
+
+            dispatch( login(123, 'Pepe') );
+
+        }, 3500);
+    }
+} 
+````
+En `components/auth/LoginScreen.js`
+* Agregamos una importación de la función nueva llamada `startLoginEmailPassword`.
+````
+import { useDispatch } from 'react-redux';
+
+import { Link } from 'react-router-dom';
+import { startLoginEmailPassword } from '../../actions/auth';
+import { useForm } from '../../hooks/useForm';
+````
+* En la función `handleLogin` hacemos el dispatch de la función recien importada y se envía el `email` y `password` para a futuro realizar el login y luego enviar los valores necesarios en la acción.
+````
+ const handleLogin = (e) => {
+        e.preventDefault();
+        dispatch( startLoginEmailPassword(email, password) );
+        
+    }
 ````
 ----
