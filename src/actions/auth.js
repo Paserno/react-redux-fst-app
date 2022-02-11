@@ -1,4 +1,5 @@
-import { types } from '../types/types'
+import { firebase, googleAuthProvider } from '../firebase/firebaseConfig';
+import { types } from '../types/types';
 
 export const startLoginEmailPassword = (email, password) => { // tarea asincrona para el dispatch 
     return (dispatch) => {
@@ -10,6 +11,17 @@ export const startLoginEmailPassword = (email, password) => { // tarea asincrona
         }, 3500);
     }
 } 
+
+export const startGoogleLogin = () => {
+    return (dispatch) => {
+        firebase.auth().signInWithPopup( googleAuthProvider )
+            .then( ({ user }) => {
+                dispatch(
+                    login( user.uid, user.displayName)
+                )
+            });
+    }
+}
 
 
 export const login = (uid, displayName) => {

@@ -451,3 +451,86 @@ import { useForm } from '../../hooks/useForm';
     }
 ````
 ----
+### 4.- Configurar Firebase - Google Sing-in
+En este punto se agregará la configuración recomendada de __Firebase v8__.
+
+Pasos a Seguir
+* Crear la 📂carpeta `firebase/` con su archivo `firabes/firbaseConfig.js` donde se tendra la configuración que proviene de __Firebase__.
+* Crear otra acción en `actions/auth.js` llamada `startGoogleLogin` que permitirá realizar el login con Google Sign-in.
+* Crear la función que permita el login en el componente __LoginScreen__.
+
+En `firabes/firbaseConfig.js`
+* Se realiza las importaciones de __firebase__, __firestore__ y __auth__, que viene de __Firebase__.
+````
+import firebase from 'firebase/app';
+import 'firebase/firestore';
+import 'firebase/auth';
+````
+* Extraemos el contenido de __Firebase__ al agregar una app, para la creación de la BD.
+````
+const firebaseConfig = {
+    apiKey: "AIzaSyBUDkAVKHXfziqmS6AmucfRDupO1nu0UvI",
+    authDomain: "react-redux-app-fst.firebaseapp.com",
+    projectId: "react-redux-app-fst",
+    storageBucket: "react-redux-app-fst.appspot.com",
+    messagingSenderId: "859300626170",
+    appId: "1:859300626170:web:c193360b5c4f6f21255343"
+  };
+  
+  firebase.initializeApp(firebaseConfig);
+````
+* Realizamos la referencia a __firestore__ y la __autentificación__ con Google Sign-in.
+* Exportamos los diferentes elementos que se utilizaran.
+````
+const db = firebase.firestore(); 
+  const googleAuthProvider = new firebase.auth.GoogleAuthProvider();
+   
+  export {
+    db,
+    googleAuthProvider,
+    firebase
+  }
+````
+En `actions/auth.js`
+* Se agrega 2 nuevas importaciones, de `firebase` y `googleAuthProvider`.
+````
+import { firebase, googleAuthProvider } from '../firebase/firebaseConfig';
+import { types } from '../types/types';
+````
+* Se Crea la nueva acción `startGoogleLogin()`, que retornará un callback que tiene como propiedad el dispatch.
+* Utilizamos el Google Sing-in que retornará una promesa, realizamos la desestructuración de `{ user }` que vendrá el contenido necesario para el __dispatch__, que seria el `user.uid` y `user.displayName`.
+````
+export const startGoogleLogin = () => {
+    return (dispatch) => {
+        firebase.auth().signInWithPopup( googleAuthProvider )
+            .then( ({ user }) => {
+                dispatch(
+                    login( user.uid, user.displayName)
+                )
+            });
+    }
+}
+````
+En `components/auth/LoginScreen.js`
+* Importamos un nuevo elemento en el componente __LoginScreen__, la función `startGoogleLogin` que servirá para realizar la acción del login con Google.
+````
+import { useDispatch } from 'react-redux';
+
+import { Link } from 'react-router-dom';
+import { startGoogleLogin, startLoginEmailPassword } from '../../actions/auth';
+import { useForm } from '../../hooks/useForm';
+````
+* Creamos la función que disparará la acción.
+````
+const handleGoogleLogin = () => {
+        dispatch( startGoogleLogin() );
+    }
+````
+* Agregamos la función `handleGoogleLogin` en el botón que se usará.
+````
+<div
+    className="google-btn"
+    onClick={ handleGoogleLogin }
+>
+````
+----
