@@ -14,6 +14,8 @@ FireBase
 * __[Firebase](https://firebase.google.com)__
 * Documentación para Actualizar __[Firebase Web 8 a 9](https://firebase.google.com/docs/auth/web/start#web-version-8)__
 
+Otros
+* __[Validator.js](https://www.npmjs.com/package/validator)__
 
 
 ----
@@ -532,5 +534,85 @@ const handleGoogleLogin = () => {
     className="google-btn"
     onClick={ handleGoogleLogin }
 >
+````
+----
+### 5.- Formulario de Registro - Errores
+Ahora implementaremos el formulario de registro y agregarle algunas validaciones.
+
+Pasos a Seguir: 
+* Instalar __[Validator.js](https://www.npmjs.com/package/validator)__.
+* Implementar CustomHook llamado __useForm__ en __RegisterScreen__ para la implementación del formulario.
+* Implementación de __validator.js__ para realizar algunas validaciones en el componente __RegisterScreen__.
+
+En `components/auth/RegisterScreen.js`
+* Importamos 2 nuevos elementos en el componente, el CustomHook __useForm__ y la nueva instalación de __validator__.
+```` 
+import { Link } from "react-router-dom";
+import { useForm } from "../../hooks/useForm";
+import validator from 'validator';
+```` 
+* Implementamos el CustomHook, asignando el `name`, `email`, `password`, `confirm` y le asginamos valores por defecto.
+* Ademas de desestructurtar el `formValue` que viene del __useForm__ para luego usarlo en los input del formulario.
+````
+const [formValue, handleInputChange ] = useForm({
+        name: 'Pedro',
+        email: 'nan@gmail.com',
+        password: '123456',
+        confirm: '123456',
+    });
+
+    const { 
+            name,
+            email,
+            password,
+            confirm } = formValue;
+````
+* Creamos la función `handleRegister`, agreganod el metodo `e.preventDefault()` para evitar el refresh o que los valores se le asignen al URL.
+* Realizamos una validación de una función que mostraremos a continuación, para realizar la validaciones del formulario.
+````
+const handleRegister = (e) => {
+        e.preventDefault();
+        
+        if ( isFormValid() ){
+            console.log('Formulario correcto');
+        }
+    }
+````
+* Realizamos la función para validar el formulario.
+    * En el caso que no se mande el nombre en el formulario, se mandará un `return false`.
+    * Usando la instalación de __validator.js__, para evaluar el email.
+    * Realizamos la ultima validación, en el caso que el `password` sea diferente de `confirm` o que el `password` sea menor a 6 caracter. 
+````
+const isFormValid = () => {
+
+        if ( name.trim().length === 0 ){
+            console.log('Name is Required');
+            return false;
+        } else if ( !validator.isEmail( email ) ){
+            console.log('Email is not valid');
+            return false;
+        } else if( password !== confirm || password.length < 6 ){
+            console.log('Password should be at least 6 character and match each other')
+            return false;
+        }
+        return true;
+    }
+````
+* Agregamos un `<div>` donde agregaremos una alerta.
+* En cada input agregamos los valores de la desestructuración del estado del __useForm__ con la función que viene del CustomHook.
+````
+<div className="auth__alert-error">
+    Hola Mundo
+</div>
+
+<input
+    type="text"
+    placeholder="Name"
+    name="name"
+    className="auth__input"
+    autoComplete="off"
+    value={ name }
+    onChange={ handleInputChange }
+/>
 ````
 ----

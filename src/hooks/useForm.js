@@ -12,7 +12,7 @@ export const useForm = ( initialState = {} ) => {
 
         setValues({
             ...values,
-            [ target.name ]: target.values
+            [ target.name ]: target.value
         });
     }
     
