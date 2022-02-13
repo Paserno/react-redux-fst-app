@@ -9,7 +9,7 @@ import { startRegisterWithForm } from '../../actions/auth';
 export const RegisterScreen = () => {
     
     const dispatch = useDispatch(); // hook de React Redux
-    const { msgError } = useSelector( state => state.ui );
+    const { msgError, loading } = useSelector( state => state.ui );
     
     const [formValue, handleInputChange ] = useForm({
         name: 'Pedro',
@@ -104,7 +104,7 @@ export const RegisterScreen = () => {
                 <button
                     type="submit"
                     className="btn btn-primary btn-block mb-5"
-
+                    disabled={ loading }
                 >
                     Register
                 </button>

@@ -11,10 +11,10 @@ import { removeError, setError } from '../../actions/ui';
 export const LoginScreen = () => {
 
     const dispatch = useDispatch(); // hook de React Redux
-    const { msgError } = useSelector( state => state.ui );
+    const { msgError, loading } = useSelector( state => state.ui );
 
     const [ formValue, handleInputChange ] = useForm({
-        email: 'hola@gmail.com',
+        email: 'nan@gmail.com',
         password: '123456'
     });
 
@@ -86,7 +86,7 @@ export const LoginScreen = () => {
                 <button
                     type="submit"
                     className="btn btn-primary btn-block"
-
+                    disabled={ loading }
                 >
                     Login
                 </button>

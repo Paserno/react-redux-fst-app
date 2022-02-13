@@ -823,3 +823,77 @@ firebase.auth().signInWithEmailAndPassword( email, password )
     })
 ````
 ----
+### 7.- Loading state 
+Ahora se hará el bloqueo del botón de login en el componente __RegisterScreen__ y __LoginScreen__ cuando este en el proceso de autentificación de parte del Firebase.
+
+Paso a Seguir:
+* Crear dos tipos nuevos en `types/types.js`
+* Crear dos nuevas acciones que modificarán el state del `uiReducer`.
+* Modificar la acción en `auth`, para cuando se realize el registro o el login se dispare el estado `loading` en `true` y cuando termine los procedimientos se cambiará `loading` en `fasle`.
+* En los componentes __RegisterScreen__ y __LoginScreen__ obtener el estado de `loading` para bloquear el botón.
+
+En `types/types.js`
+* Agregar las nuevas opciones.
+````
+uiStartLoading: '[UI] Start Loading',
+uiFinishLoadin: '[UI] Finish Loading'
+````
+En `reducers/uiReducer.js`
+* Agregamos las dos nuevas acciones en el __uiReducer__. 
+````
+case types.uiStartLoading:
+    return { 
+        ...state,
+        loading: true
+    }
+
+case types.uiFinishLoadin:
+    return { 
+        ...state,
+        loading: false
+    }
+````
+En `actions/ui`
+* Creamos las 2 nuevas disparadores de las acciones.
+````
+export const startLoading = () => ({
+    type: types.uiStartLoading
+});
+
+export const finishLoading = () => ({
+    type: types.uiFinishLoadin   
+});
+````
+En `actions/auth.js`
+* Tanto en la función `startLoginEmailPassword` y `startRegisterWithForm` agregaremos los `dispatch` nuevos, como en el ejemplo que se muestra _(El ejemplo muestra el login con __Firebase__)_.
+    * Agregamos el primer dispatch con la función `startLoading()` al inicio de la llamada al callback.
+    * Agregamos 2 dispatch con la función `finishLoading()` en el final de la promesa del `.then` y otro en el caso que aparezca un error con el `.catch`.
+````
+return (dispatch) => {
+    dispatch( startLoading() );
+
+    firebase.auth().signInWithEmailAndPassword( email, password )
+        .then( ({user})=> {
+                dispatch( login( user.uid, user.displayName ) )
+                dispatch( finishLoading() )
+        })
+        .catch( e => {
+            console.log(e);
+            dispatch( finishLoading() );
+        })
+}
+````
+En `components/auth/LoginScreen.js`
+* Ahora adicionalmente necesitamos el estado del `loading` para el bloqueo del botón.
+````
+const { msgError, loading } = useSelector( state => state.ui );
+````
+* Agregamos la propiedad `disabled` con el elemento que se obtuvo del Reducer, llamado `loading`, en el caso que sea `false` el estado estara disponible el botón, en el caso que sea `true` se desabilitará el botón, hasta que cambie nuevamente de estado.
+````
+<button
+    type="submit"
+    className="btn btn-primary btn-block"
+    disabled={ loading }
+>
+````
+----
