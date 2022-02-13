@@ -1,13 +1,15 @@
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link } from "react-router-dom";
 import { useForm } from "../../hooks/useForm";
 import validator from 'validator';
 import { removeError, setError } from '../../actions/ui';
+import { startRegisterWithForm } from '../../actions/auth';
 
 
 export const RegisterScreen = () => {
     
     const dispatch = useDispatch(); // hook de React Redux
+    const { msgError } = useSelector( state => state.ui );
     
     const [formValue, handleInputChange ] = useForm({
         name: 'Pedro',
@@ -27,9 +29,8 @@ export const RegisterScreen = () => {
         e.preventDefault();
         
         if ( isFormValid() ){
-            console.log('Formulario correcto');
+            dispatch( startRegisterWithForm(email, password, name) );
         }
-        
     }
 
     const isFormValid = () => {
@@ -55,10 +56,14 @@ export const RegisterScreen = () => {
 
             <form onSubmit={ handleRegister }>
 
-                <div className="auth__alert-error">
-                    Hola Mundo
-
-                </div>
+                {
+                    msgError &&
+                    (
+                        <div className="auth__alert-error">
+                            <li>{msgError}</li>
+                        </div>
+                    )
+                }
 
                 <input
                     type="text"

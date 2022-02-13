@@ -734,3 +734,68 @@ const isFormValid = () => {
 }
 ````
 ----
+### 6.- Register en Firebase
+Lo que haremos es buscar la información del estado del reducer, para desplegar los errores en el formulario, y ademas de realizar el registro en firebase de un nuevo usuario.
+
+Pasos a Seguir:
+* Utilizar otro CustomHook de __Redux__ llamado __useSelect__ que buscará el estado del Reducer, para mostrar si existe algun error en el formulario del componente __RegisterScreen__.
+* Se creará una acción asincrona para almacenar la información en Firebase.
+
+En `actions/auth.js`
+* Creamos la función que manejara el registro del nuevo usuario en Firebase.
+    * Retornamos el callback utilizando `.createUserWithEmailAndPassword()`.
+    * Le mandamos en una promesa el await de `user.updateProfile({ displayName: name})`, para luego hacer el login.
+    * Controlamos el error con el `.cathc()`.
+````
+export const startRegisterWithForm = ( email, password, name ) => {
+    return( dispatch ) => {
+        firebase.auth().createUserWithEmailAndPassword( email, password )
+            .then( async({ user }) => {
+                await user.updateProfile({ displayName: name });
+
+                dispatch(
+                    login( user.uid, user.displayName )
+                )
+            })
+            .catch( e => {
+                console.log(e);
+            })
+    }
+}
+````
+En `components/auth/RegisterScreen.js`
+* Importamos 2 elementos nuevos, __useSelector__ que es el __CustomHook__ y la acción asincronica `startRegisterWithForm`. 
+````
+import { useDispatch, useSelector } from 'react-redux';
+import { Link } from "react-router-dom";
+import { useForm } from "../../hooks/useForm";
+import validator from 'validator';
+import { removeError, setError } from '../../actions/ui';
+import { startRegisterWithForm } from '../../actions/auth';
+````
+* Implementamos el CustomHook __useSelector__ para conseguir el `msgError` que viene del `state.ui`.
+````
+const { msgError } = useSelector( state => state.ui );
+````
+* Remplazamos la impresión por consola por el __dispatch__ con la acción de registrar.
+````
+const handleRegister = (e) => {
+        e.preventDefault();
+        
+        if ( isFormValid() ){
+            dispatch( startRegisterWithForm(email, password, name) );
+        }
+    }
+````
+* Realizamos una condición en el caso que `msgError` tenga algun error, se mostrará una alerta con el mensaje del error que viene del state que se obtuvo con el __useSelect__ de Redux.  
+````
+{
+    msgError &&
+    (
+        <div className="auth__alert-error">
+            <li>{msgError}</li>
+        </div>
+    )
+}
+````
+----
