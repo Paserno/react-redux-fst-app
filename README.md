@@ -888,7 +888,7 @@ En `components/auth/LoginScreen.js`
 ````
 const { msgError, loading } = useSelector( state => state.ui );
 ````
-* Agregamos la propiedad `disabled` con el elemento que se obtuvo del Reducer, llamado `loading`, en el caso que sea `false` el estado estara disponible el botón, en el caso que sea `true` se desabilitará el botón, hasta que cambie nuevamente de estado.
+* Agregamos la propiedad `disabled` con el elemento que se obtuvo del Reducer, llamado `loading`, en el caso que sea `false` el estado estará disponible el botón, en el caso que sea `true` se deshabilitará el botón, hasta que cambie nuevamente de estado `loading`.
 ````
 <button
     type="submit"
