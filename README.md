@@ -616,3 +616,121 @@ const isFormValid = () => {
 />
 ````
 ----
+### 5.- Acciones de UI
+En este punto se crearán las nuevas acciones para los errores del formulario de Registrar, ademas de crear un nuevo Reducer que maneje los errores.
+
+Pasos a Seguir:
+* Crear nuevas opciones en `types/types.js`, para el manejo de errores de UI.
+* Crear el nuevo Reducer en `reducers/uiReducer.js`.
+* Agregar nuevo Reducer en el __store__, para la combinación de todos los Reducer, con ayuda de Redux. 
+* Crear la nuevas acciones UI, para disparar el __Reducer__.
+* Implementar errores del formulario de Registrar y crear los __dispatch__ de las acciones.
+
+En `types/types.js`
+* Se agregan las nuevas opciones en el `types`.
+````
+uiSetError: '[UI] Set Error',
+uiRemoveError: '[UI] Remove Error',
+````
+En `reducers/uiReducer.js`
+* Importamos las opciones nuevas que estan centralizadas en `types`.
+````
+import { types } from '../types/types';
+````
+* Creamos un objeto literal con los estados iniciales del nuevo __Reducer__.
+````
+const initialState = {
+    loading: false,
+    msgError: null
+}
+````
+* Creamos el reducer en las propiedades le pasamos el estado inicial, ademas de la acción.
+* Se crea el `switch` con las 2 nuevas opciones.
+    * La primera opción `types.uiSetError` recibirá un nuevo payload que vendra el error.
+    * La segunda opcion `types.uiRemoveError` cambiará el `msgError` en null, queriendo decir que no existe error en los formularios. 
+    * Final mente el estado por defecto que retornará el estado.
+````
+export const uiReducer = ( state = initialState, action ) => {
+    switch ( action.type) {
+        case types.uiSetError:
+            return {
+                ...state,
+                msgError: action.payload
+            }
+
+        case types.uiRemoveError:
+            return {
+                ...state,
+                msgError: null
+            }
+            
+        default:
+            return state;
+    }
+} 
+````
+En `store/store.js`
+* Se importa el nuevo Reducer.
+````
+import { uiReducer } from '../reducers/uiReducer';
+````
+* Agregamos el nuevo reducer en el store del __Redux__.
+````
+const reducers = combineReducers({
+    auth: authReducer,
+    ui: uiReducer
+})
+````
+En `actions/ui.js`
+* Importamos `types` para usar las opciones centralizadas.
+* Creamos las dos opciones a disparar.
+    * El primero recibe el error y lo manda por el payload.
+    * El segundo solo activa la opción, que esto hará que se mande un null en el `msgError`.
+````
+import { types } from '../types/types';
+
+export const setError = (err) => ({
+    type: types.uiSetError,
+    payload: err
+})
+
+export const removeError = () => ({
+    type: types.uiRemoveError
+   
+})
+````
+En `components/auth/RegisterScreen.js`
+* Agregamos 3 nuevas importaciones.
+    * Importamos `useDispatch` que realizará el diesparo de la acción.
+    * Importamos las 2 funciónes que disparán las acciones hacia el Reducer recien creado.
+````
+import { useDispatch } from 'react-redux';
+import { Link } from "react-router-dom";
+import { useForm } from "../../hooks/useForm";
+import validator from 'validator';
+import { removeError, setError } from '../../actions/ui';
+````
+* Invocamos el CustomHook de Redux.
+````
+const dispatch = useDispatch(); 
+````
+* Modificamos la función `isFormValid`.
+    * Remplazamos las impresiones por consola por disparadores, y le pasamos por parametro el mensaje por ejemplo en `setError('Name is Required')`, así con cada error.
+    * En el caso que no ingrese a las validaciones se disparará la acción `removeError()`.
+````
+const isFormValid = () => {
+    if ( name.trim().length === 0 ){
+        dispatch(setError('Name is Required'));
+        return false;
+    } else if ( !validator.isEmail( email ) ){
+        dispatch(setError('Email is not valid'));
+        return false;
+    } else if( password !== confirm || password.length < 6 ){
+        dispatch(setError('Password should be at least 6 character and match each other'));
+        return false;
+    }
+    dispatch( removeError() );
+    return true;
+}
+````
+----
