@@ -798,4 +798,5 @@ const handleRegister = (e) => {
     )
 }
 ````
+Implementar Validación de campos en el componente __LoginScreen__.
 ----
