@@ -799,4 +799,27 @@ const handleRegister = (e) => {
 }
 ````
 Implementar Validación de campos en el componente __LoginScreen__.
+
+----
+### 6,5.- Acción de Login a Firebase
+En este punto se realizará la acción de login hacia firebase, ya que en el anterior punto se realizo el registro de usuario, esta vez se hara el login con ese usuario.
+
+Pasos a Seguir:
+* Eliminar el contenido que habia en el callback de `startLoginEmailPassword`, para remplazar por el nuevo login hacia FireBase.
+
+En `actions/auth.js`
+* Utilizamos el metodo `signInWithEmailAndPassword` de __Firebase__ auth, para realizar el login del usuario, enviandole el `email` y `password` por parametro.
+    * En el dispatch utilizamos la acción `login()` pasandole los parametros de `user.uid` y `user.displayName`.
+    * Usamos el `.catch` en el caso de tener un error lo manipularemos con una impresión por consola.
+````
+firebase.auth().signInWithEmailAndPassword( email, password )
+    .then( ({user})=> {
+        dispatch(
+            login( user.uid, user.displayName )
+        )
+    })
+    .catch( e => {
+        console.log(e);
+    })
+````
 ----
