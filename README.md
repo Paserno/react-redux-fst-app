@@ -897,3 +897,50 @@ const { msgError, loading } = useSelector( state => state.ui );
 >
 ````
 ----
+### 7,5.- Mantener estado de la autentificación al recargar la página
+En este punto se utilizo uno de los metodos de Firebase _("observable")_, que capture el registro aunque se le haga un recargo a la página _(F5)_.
+
+Pasos a Seguir:
+* Implementar el elemento de __Firebase__, en el caso que tenga algun contenido se disparará  el estado de login.
+
+En `routers/AppRouter.js`
+* Se importan 4 nuevos elementos.
+    * __useEffect__ de React para disparar 1 sola vez el contenido en la aplicación.
+    * __useDispatch__ para disparar el nuevo estado en Reducer.
+    * `firebase` para agregar el nuevo metodo que hará de observable y verificará si ya hubo un login anteriromente.
+    * `login` que es una función definida como una acción que se puede disparar.
+````
+import { useEffect } from 'react';
+import {
+    BrowserRouter as Router,
+    Switch,
+    Route,
+    Redirect
+} from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+
+import { firebase } from '../firebase/firebaseConfig';
+
+import { JournalScreen } from '../components/journal/JournalScreen';
+import { AuthRouter } from './AuthRouter';
+import { login } from '../actions/auth';
+````
+* Implementamos el __useDispatch__ para activar la acción.
+* Se implementa el __useEffect__ con una dependencia del dispatch, cada vez que se renderize la aplicación por primera vez se activará el efecto que se tenga dentro.
+    * Usando uno de los metodos de firebase llamado `.onAuthStateChanged()` podemos ver si hubo un inicio de sesión.
+    * Realizamos una condición en el caso que el `user` traiga conteido se ingresará a la condición, en el caso que `user` devuelva un `null`, no pasará nada.
+    * Si entra a la condición se enviará el `user.uid` y `user.displayName` a la función login _(que es una acción)_.
+````
+const dispatch = useDispatch();
+
+useEffect(() => {
+    firebase.auth().onAuthStateChanged((user) => {
+
+        if (user?.uid) {
+            dispatch( login(user.uid, user.displayName) );
+        }
+    });
+
+}, [dispatch])
+````
+----
