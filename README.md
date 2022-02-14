@@ -537,7 +537,7 @@ const handleGoogleLogin = () => {
 >
 ````
 ----
-### 5.- Formulario de Registro - Errores
+### 4,5.- Formulario de Registro - Errores
 Ahora implementaremos el formulario de registro y agregarle algunas validaciones.
 
 Pasos a Seguir: 
