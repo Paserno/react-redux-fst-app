@@ -16,6 +16,7 @@ FireBase
 
 Otros
 * __[Validator.js](https://www.npmjs.com/package/validator)__
+* __[Sweet Alert 2](https://sweetalert2.github.io)__
 
 
 ----
@@ -1041,5 +1042,117 @@ const handleLogout = () =>{
 >
     Logout
 </button>
+````
+----
+### 9.- Rutas privadas y publica - Alerta de Errores
+Se implemento las rutas privadas y publica para la protección de la aplicación, ademas de alertas gatilladas por __Firebase__.
+
+Pasos a Seguir:
+* Crear 2 nuevos componentes llamados __PrivateRouter__ y __PublicRouter__.
+* Importar los dos componentes recién mencionado en __AppRouter__, para la protección de rutas.
+* Instalación de __SweetAlert2__ para el manejo de alertas en la aplicación, estas se implementaran en `action/auth.js` donde estan los metodos de __Firebase__.
+
+
+En `routers/PrivateRoute.js`
+* Se realiza la importación de __PropTypes__ para la utilizar los elementos que son requeridos de una manera correcta, ademas de Route y Redirect que viene de __React Router__.
+````
+import PropTypes from 'prop-types';
+
+import { Route, Redirect } from 'react-router-dom';
+````
+* Se crea el componente __PrivateRoute__, recibiendo como parametro los objetos `isAuthenticated` y `component`, ademas de usar el __Operador Rest__ _(Recibe un numero indefinido de argumentos como un array)_.
+* En el componente retornamos diferentes elementos.
+    * `<Route>` que viene con todas las propiedades que le son mandado en `{...rest}`.
+    * Ademas le mandamos el `component` el cual se evaluará con una condición el contenido de este.
+    * En el caso que `isAuthenticated` sea `true` se enviará al contenido del la aplicación, en el caso que fuera `false` se redireccionará hacia el componente __LoginScreen__.
+````
+export const PrivateRoute = ({
+    isAuthenticated,
+    component: Component,
+    ...rest
+}) => {
+    return (
+        <Route {...rest}
+            component={(props) => (
+                (isAuthenticated)
+                    ? (<Component {...props} />)
+                    : (<Redirect to="/auth/login" />)
+            )}
+        />
+    )
+}
+````
+* En este punto se agrega las __Proptype__, que dirá que es requerido el parametro `isAuthenticated` y que tiene que ser un valor booleano a recibir.
+* Y que `component` tiene que ser una función enviada.
+````
+PrivateRoute.propTypes = {
+    isAuthenticated: PropTypes.bool.isRequired,
+    component: PropTypes.func.isRequired
+}
+````
+En `routers/PublicRoute.js`
+* Al igual que el anterior componente es requerido los elementos de __React Router__ y `PropType`.
+````
+import PropTypes from 'prop-types';
+
+import { Route, Redirect } from 'react-router-dom';
+````
+* Se crea el componente __PublicRoute__, recibiendo como parametro los objetos `isAuthenticated` y `component`, ademas de usar el __Operador Rest__ _(Recibe un numero indefinido de argumentos como un array)_.
+    * `<Route>` que viene con todas las propiedades que le son mandado en `{...rest}`.
+    * Ademas le mandamos el `component` el cual se evaluará con una condición el contenido de este.
+    * En el caso que `isAuthenticated` sea `true` se redireccionará hacia la raiz que seria el contenido de la aplicación, en el caso que sea `false` se enviará hacia el contenido publico, en este caso hacia el Login o Register.
+````
+export const PublicRoute = ({
+    isAuthenticated,
+    component: Component,
+    ...rest
+}) => {
+    return (
+        <Route {...rest}
+            component={(props) => (
+                (isAuthenticated)
+                    ? (<Redirect to="/" />)
+                    : (<Component {...props} />)
+            )}
+        />
+    )
+}
+````
+En `routers/AppRouter.js`
+* Se importan las 2 nuevas rutas.
+````
+...
+import { PrivateRoute } from './PrivateRoute';
+import { PublicRoute } from './PublicRoute';
+...
+````
+* En el componente __AppRouter__ dentro del `<Switch>` se incluye las 2 nuevas rutas __PrivateRoute__ y __PublicRoute__.
+    * Agregando el __useState__ `isLoggedIn` a cada componente, ademas de sus rutas a los componentes.  
+````
+<PublicRoute
+    path="/auth"
+    component={AuthRouter}
+    isAuthenticated={ isLoggedIn }
+/>
+
+<PrivateRoute 
+    exact 
+    isAuthenticated={ isLoggedIn }
+    path="/"
+    component={JournalScreen}
+/>
+````
+En `actions/auth.js`
+* Una vez instalado el paquete, se imporará `Swal`.
+````
+import Swal from 'sweetalert2';
+````
+* Se agrega a las 2 funciones asincrona llamadas `startLoginEmailPassword` y `startRegisterWithForm`, en el caso que una de estas funciónes emitan un error por __Firebase__, se disparará el mensaje de error. 
+````
+.catch( e => {
+    console.log(e);
+    dispatch( finishLoading() );
+    Swal.fire('Error', e.message, 'error');
+})
 ````
 ----
