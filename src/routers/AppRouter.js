@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
     BrowserRouter as Router,
     Switch,
@@ -12,22 +12,35 @@ import { firebase } from '../firebase/firebaseConfig';
 import { JournalScreen } from '../components/journal/JournalScreen';
 import { AuthRouter } from './AuthRouter';
 import { login } from '../actions/auth';
+import { LoadingScreen } from '../components/auth/LoadingScreen';
 
 export const AppRouter = () => {
 
     const dispatch = useDispatch();
+
+    const [checking, setChecking] = useState(true);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     useEffect(() => {
         firebase.auth().onAuthStateChanged((user) => {
 
             if (user?.uid) {
                 dispatch( login(user.uid, user.displayName) );
+                setIsLoggedIn(true);
+            }else {
+                setIsLoggedIn(false);
             }
+            setChecking(false);
         });
 
-    }, [dispatch])
+    }, [dispatch, setChecking, setIsLoggedIn])
 
-
+    if( checking ){
+        return(
+             <LoadingScreen/>
+            // <h1>Espere...</h1>
+        )
+    }
 
 
     return (

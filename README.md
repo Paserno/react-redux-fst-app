@@ -944,3 +944,49 @@ useEffect(() => {
 }, [dispatch])
 ````
 ----
+### 8.- Loading en la aplicación
+Se agregará una pantalla de carga ya que la aplicación se ejecuta de una manera sincrona e instantaniamente, excepto el efeco, para dar un momento de espera en la aplicación y darle tiempo a __Firebase__ en recibir alguna respuesta, se creará ese momento de espera.  
+
+Pasos a Seguir:
+* Agregar useState en el componente __AppRouter__, para generar un momento de espera.
+
+En `routers/AuthRouter.js`
+* Se Agregan 1 nuevas importaciones, __useState__ para manejar nuevos estados en el componente. 
+````
+import { useEffect, useState } from 'react';
+````
+* Se crean 2 manejos de estado.
+    * El primero verificará que __Firebase__ devuelva alguna respuesta, en el caso que se reciba una respuesta se mostrará las pantallas correspondiente _(Login o Register)_.
+    * El segundo permitirá el manejo de las futuras rutas privadas y publicas
+````
+const [checking, setChecking] = useState(true);
+const [isLoggedIn, setIsLoggedIn] = useState(false);
+````
+* Agregamos el `setIsLoggedIn(true)` en el caso que entre en la condición, eso significará que esta autenticado, en el caso que caiga en el `else`, no estará autenticado.
+* Se agrego afuera de las condiciones `setChecking(false)` para que la futura pantalla de carga se elimine cuando se tenga respuesta. 
+* Se añadio 2 nuevas dependencias del __useEffect__ estas son `setChecking` y `setIsLoggedIn`.
+````
+useEffect(() => {
+        firebase.auth().onAuthStateChanged((user) => {
+
+            if (user?.uid) {
+                dispatch( login(user.uid, user.displayName) );
+                setIsLoggedIn(true);
+            }else {
+                setIsLoggedIn(false);
+            }
+            setChecking(false);
+        });
+
+    }, [dispatch, setChecking, setIsLoggedIn])
+````
+* En el caso que el estado de `checking` este en `true` se mostrará en pantalla `Espera...`, en el caso que cambie a `false` _(o se obtenga resultados de __Firebase__)_ se quitará.
+````
+if( checking ){
+        return(
+            // <LoadingScreen/>
+            <h1>Espere...</h1>
+        )
+    }
+````
+----

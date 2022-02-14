@@ -45,6 +45,9 @@
     color: lighten($color: $primary2, $amount: 5);
     margin-bottom: 20px;
 }
+.auth__title__big{
+    font-size: 45px;
+}
 
 .auth__input{
     color: $light-react;
