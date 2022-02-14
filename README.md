@@ -990,3 +990,56 @@ if( checking ){
     }
 ````
 ----
+### 8,5.- Logout de Firebase
+Se implementa el botón logout del componente __Sidbar__, creando una nueva acción a disparar, para eliminar el estado en Redux.
+
+Pasos a Seguir:
+* Crear 2 acciones nuevas en `acitons/auth.js` una sincrona y otra asincronica.
+* Agregar el disaprador en el componente __Sidbar__.
+
+En `actions/auth.js`
+* Se crea la acción asincronica, que retorna un callback.
+    * Esta acción hará el logout en __Firebase__.
+    * El __dispatch__ ejecuta la acción sincronica que se mostrará a continuación. 
+````
+export const starLogout = () =>{
+    return async( dispatch ) => {
+        await firebase.auth().signOut();
+
+        dispatch( logout() );
+    }
+}
+````
+* Esta acción pertenece al logout, que provocará que se limpie el contenido de Reducer. 
+````
+export const logout = () => ({
+    type: types.logout
+})
+````
+En `components/journal/Sidbar.js`
+* Se importan 2 nuevo elementos __useDispatch__ y `startLogout`. 
+````
+import { useDispatch } from 'react-redux';
+
+import { startLogout } from '../../actions/auth';
+import { JournalEntries } from './JournalEntries';
+````
+* Implementamos el __useDispatch__ para ejecutar las acciones.
+* Creamos la acción `handleLogout` que realizará el disparo del la acción `startLogout()`.
+````
+const dispatch = useDispatch();
+
+const handleLogout = () =>{
+    dispatch( startLogout() )
+} 
+````
+* Se agrega la función `handleLogout` en el botón `Logout`.
+````
+<button 
+    className="btn"
+    onClick={ handleLogout }
+>
+    Logout
+</button>
+````
+----
