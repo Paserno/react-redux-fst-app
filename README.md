@@ -1355,3 +1355,33 @@ firebase.auth().onAuthStateChanged( async(user) => {
 }
 ````
 ----
+### 2,5.- Optimizar Carga de Notas
+Otimizar la carga de notas en el componente __AppRouter__.
+
+Pasos a Seguir:
+* Crear función `startLoadingNotes` para la optimización del componente __AppRouter__.
+
+En `actions/notes.js`
+* Se crea la acción `startLoadingNotes` que recibira por parametro el `uid`. _(No olvidar imporar __loadNotes__)_
+* El callback lo hacemos asíncrono, y extraemos el codigo que estaba en el __useEffect__ del componente __AppRouter__.
+````
+export const startLoadingNotes = ( uid ) => {
+    return async(dispatch) => {
+
+        const notes = await loadNotes( uid );
+        dispatch( setNotes( notes ) )
+
+    }
+}
+````
+En `routers/AppRouter.js`
+* Eliminamos 2 importaciones, para remplazarlo por `startLoadingNotes`.
+````
+...
+import { startLoadingNotes } from '../actions/notes';
+````
+* Donde se extrajo el codgio, se remplaza por un nuevo dispatch con la nueva acción recién creada.
+````
+dispatch( startLoadingNotes( user.uid ) )
+````
+----
