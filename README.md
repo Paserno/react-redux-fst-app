@@ -1256,3 +1256,102 @@ const handleAddNew = () => {
 >
 ````
 ----
+### 2.- Cargar notas de Firabase
+En este punto se realizará la carga de Firebase.
+
+Pasos a Seguir:
+* Creamos nuevos `case` en el switch del __nodesReducer__.
+* Agregamos 2 nuevas acciónes que pueden ser disparadas sincronicamente.
+* Se crea un `helper/` que hará la carga de las notas.
+* Se dispará la acción `setNotes` en el componente __AppRouter__ en su useEffect.
+
+En `reducers/nodesReducer.js`
+* Se importa los types.
+````
+import { types } from '../types/types';
+````
+* Se agregan dos nuevos case.
+    * El primer case, obtiene los state sin mutar, y activa una nueva nota.
+    * El segundo case, obtiene el state y recibe todo el contenido cargado.
+````
+case types.notesActive: 
+    return {
+        ...state,
+        active: {
+            ...action.payload
+        }
+    }
+        
+case types.notesLoad:
+    return {
+        ...state,
+        notes: [ ...action.payload ]
+    }
+````
+En `actions/notes.js` 
+* Se crean dos funciones sincronas.
+    * La primera acción, para activar las notas, obtiene la `id` y `note` por parametros, y este los mandas por el payload.
+    * La segunda acción, para cargar las notas, solicita `notes` por parametro, para enviarlos por el payload.
+````
+export const activeNote = ( id ,note ) => ({
+    type: types.notesActive,
+    payload: {
+        id,
+        ...note
+    }
+});
+
+export const setNotes = ( notes ) => ({
+    type: types.notesLoad,
+    payload: notes
+});
+````
+En `helpers/loadNotes.js`
+* Importamos `db` para realizar la carga de datos.
+````
+import { db } from '../firebase/firebaseConfig';
+````
+* Creamos la función asíncrona `loadNotes`, pidiendo por parametros el `uid`.
+* Obtenemos el contenido de la BD relacionada a la `uid` que se le mande.
+* Creamos una constante, para luego pasarle los datos al arreglo, con el contenido obtenido de BD, y luego retornar.
+````
+export const loadNotes = async( uid ) => {
+   const Snapshot = await db.collection(`${ uid }/journal/notes`).get()
+    
+    const notes = [];
+
+   Snapshot.forEach( snap => {
+       notes.push({
+           id: snap.id,
+           ...snap.data()
+       })
+    });
+   return notes;
+}
+````
+En `roters/AppRouter.js`
+* Realizamos 2 nuevas importaciones, una la función del helper llamada `loadNotes`, y la otra una acción que será disparada.
+````
+...
+import { loadNotes } from '../helpers/loadNotes';
+import { setNotes } from '../actions/notes';
+````
+* En el __useEffect__, agregamos un `async` dentro de la función del __Firebase__.
+* Le agregamos el `await` a la función `loadNotes` que necesita como parametro el `uid`, para poder cargar todo el contenido de la BD. _(las notas relacionada al uid)_
+* Para luego realizar un nuevo dispatch, con la acción `setNotes` enviandole como parametro toda la carga de la BD.
+````
+firebase.auth().onAuthStateChanged( async(user) => {
+    if (user?.uid) {
+        dispatch( login(user.uid, user.displayName) );
+        setIsLoggedIn(true);
+
+        const notes = await loadNotes( user.uid );
+        dispatch( setNotes( notes ) )
+
+    }else {
+        setIsLoggedIn(false);
+    }
+    setChecking(false);
+}
+````
+----
