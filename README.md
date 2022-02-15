@@ -17,6 +17,7 @@ FireBase
 Otros
 * __[Validator.js](https://www.npmjs.com/package/validator)__
 * __[Sweet Alert 2](https://sweetalert2.github.io)__
+* __[Moment JS](https://momentjs.com)__
 
 
 ----
@@ -1383,5 +1384,60 @@ import { startLoadingNotes } from '../actions/notes';
 * Donde se extrajo el codgio, se remplaza por un nuevo dispatch con la nueva acción recién creada.
 ````
 dispatch( startLoadingNotes( user.uid ) )
+````
+----
+### 3.- Mostrar Notas en el Sidbar
+En el componente __JournalEntries__ se recibirá el state de Redux, para desplegar la información, y proximanente mostrar el contenido de las notas.
+
+Pasos a Seguir:
+* Utilizar el __useSelector__ en el componente __JournalEntries__ para obtener los datos del Redux.
+* Instalar __Moment JS__ para manejar el tiempo en la aplicación.
+* En el componente __JournalEntry__ recibir por los parametros el contenido que es necesario mostrar de las notas.
+
+En `components/journal/JournalEntries.js`
+* Importar __useSelector__ para obtener el conetenido que se tiene en los Reducer.
+````
+import { useSelector } from "react-redux";
+import { JournalEntry } from "./JournalEntry";
+````
+* Conseguimos el Reducer de `notes` para desplegar el estado en el componente hijo. 
+````
+const { notes } = useSelector( state => state.notes );
+````
+* Realizamos un `.map()` de `notes`, le pasamos la id a `key=` y utilizamos el __operador spread__ para pasarle todo el contenido al componente hijo.
+````
+return (
+      <div className="journal__entries">
+        {
+          notes.map( note => (
+            <JournalEntry
+              key={ note.id }
+              { ...note }
+            />
+          ))
+        }
+      </div>
+  )
+````
+En `components/journal/JournalEntries.js`
+* Una vez instalado __Moment.js__ lo importamos.
+````
+import moment from 'moment';
+````
+* Ahora recibimos por parametros todos los elementos necesarios.
+* Y implementamos __Moment.js__.
+````
+export const JournalEntry = ({ id, date, title, body, url }) => {
+    const noteDate = moment(date);
+    ...
+}
+````
+* Remplazamos el texto plano por el contenido que se desea mostrar. _("carpintería")_
+* Ademas utilizar los metodos de __Moment.js__, para mostrar la fecha. _(mes y día)_
+````
+<div className="journal__entry-date-box">
+    <span>{ noteDate.format('dddd') }</span>
+    <h4>{ noteDate.format('Do') }</h4>
+</div>
 ````
 ----
