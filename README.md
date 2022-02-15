@@ -1441,3 +1441,163 @@ export const JournalEntry = ({ id, date, title, body, url }) => {
 </div>
 ````
 ----
+### 4.- Activar Notas - Selección de Notas - Actualizar
+En este punto lo que se hará es dejar activada la nota que se selecciona, para luego editarla y cambiar el estado en el __Redux__ y luego guardar el cambio en Firebase.
+
+Pasos a Seguir:
+* En el componente __JournalEntry__ se agrega un evento click, que provocará que se dispare la acción `activeNote` mandandole todas las propiedades recibidas.
+* Adaptamos el CustomHook __useForm__ especificamente la función `reset`, para que cada vez que se seleccione una nueva nota, se le pase su estado por las propiedades.
+* En el componente __NoteScreen__ recibimos el estado de Redux, para luego desplegarlo en el formulario, para luego disparar los cambios nuevamente a Redux.
+* Se crea una nueva acción llamada `startSaveNote` asíncrona que hará la actualización _(save)_ hacia la base de dato de __Firebase__.
+* En el componente __NotesAppBar__ recibiremos los cambios que vienen de __Redux__ especificamente en el estado `active`, para luego crear una función que será activada por un botón que disparará la acción de guardar en BD.
+
+
+En `components/journal/JournalEntry.js`
+* Se importan dos nuevos elementos, __useDispatch__ y la acción `activeNote`.
+````
+import moment from 'moment';
+import { useDispatch } from 'react-redux';
+import { activeNote } from '../../actions/notes';
+````
+* Se invoca el CustomHook de __Redux__ useDispatch.
+* Se crea la nueva función `handleEntryClick`, el cual disparará la acción `activeNote` y le pasamos todos los parametros que se recibio.
+````
+const dispatch = useDispatch();
+
+const handleEntryClick = () => {
+    dispatch( activeNote(id, {
+        date, title, body, url
+    }
+    ));
+}
+````
+* El evento lo agregamos en el `<div>` principal del componente __JournalEntry__.
+````
+<div 
+    className="journal__entry pointer"
+    onClick={ handleEntryClick }
+>
+````
+En `hook/useForm.js`
+* Se adapta la función `reset` del CustomHook, recibiendo un nuevo parametro, en el caso de no recibir nada, se enviará el valo inicial.
+````
+const reset = ( newFormState = initialState) => {
+    setValues( newFormState );
+}
+````
+En `components/notes/NoteScreen.js`
+* Importamos 6 elementos nuevos.
+    * Se importa 2 hooks de __React__ __useEffect__ y __useRef__.
+    * Se importan 2 CustomHook de Redux, __useDispatch__ y __useSelector__.
+    * Se importa la acción `acitveNote`.
+    * Y finalmente __useForm__ que recién se modifico.
+````
+import { useEffect, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { activeNote } from "../../actions/notes";
+import { useForm } from "../../hooks/useForm";
+
+import { NotesAppBar } from "./NotesAppBar";
+````
+* Implementamos el __useDispatch__ que disparará las acciones.
+* Utilizamos useSelector, buscando el estado en `state.notes` y desestructurando `active` y asignandole un nuevo nombre.
+* Se usa el CustomHook __useForm__ pasandole como valor inicial `note` _(`active`)_ para luego recibir su estado, ademas de las 2 funciones del Hook.
+    * Desestructuramos el `body` y el `title` del estado, para luego utilizarlo.
+* Con __useRef__ guardar una variable mutable, que no redibujará todo el componente.
+````
+const dispatch = useDispatch();
+
+const { active:note } = useSelector( state => state.notes );
+const [ formValues, handleInputChange, reset ] = useForm( note );
+const { body, title } = formValues;
+
+const activeId = useRef( note.id ); 
+````
+* Creamos este primer __useEffect__, para el caso cuando se seleccione otra nota, se le pasa como dependencia `note` y `reset`.
+    * La comparación evaluará si `node.id` _(el valor que es tomado de Redux)_ es diferente a `activeId.current` el valor de __useRef__, en el caso que sean diferentes se le pasará a la función `reset` los nuevos valores, y actualizando el valor de `activeId.current` _(para no provocar un bucle)_.
+
+````
+useEffect(() => {
+    if( note.id !== activeId.current ){
+      reset( note );
+      activeId.current = note.id;
+    }
+}, [note, reset])
+````
+* Este __useEffect__ sirve para disparar la acción `activeNote` que provocará que se actualicé el estado de Redux _(el estado que se le asigno a `formValues`)_, la dependencia es `formValues`.
+````
+ useEffect(() => {
+    dispatch( activeNote( formValues.id, {...formValues}) )
+
+}, [formValues])
+````
+* En el input y textarea, se le asinga un los valores a los campos `name`, `value` y `onChange`.
+````
+<input
+    type="text"
+    placeholder="Some awesome title"
+    className="notes__title-input"
+    autoComplete="off"
+    name="title"
+    value={ title }
+    onChange={ handleInputChange }
+/>
+
+<textarea
+    placeholder="What happened today"
+    className="notes__textarea"
+    name="body"
+    value={ body  }
+    onChange={ handleInputChange }
+></textarea>
+````
+En `actions/notes.js`
+* Creamos la nueva acción asíncorna con una propiedad que recibirá llamada `note`.
+* En el return asíncrono pide en sus propiedades `dispatch` y `getState`.
+* Con `getState().auth` se busca el uid del usuario registrado.
+* Se realiza una condición, en el caso que no venga `url`, se eliminará ese campo, para no afectar a la BD.
+* Guardamos en una variable el exparsimiento de lo que viene en `note` y eliminamos el campo `id`, ya que ya no es necesario.
+* Y se realiza un await, almacenando en el path correspondiente al usuario y al id de la nota, para actualizar lo que esta en `noteToFirestore`.
+````
+export const startSaveNote = ( note ) => {
+    return async( dispatch, getState ) => {
+        const { uid } = getState().auth;
+
+        if ( !note.url ){
+            delete note.url;
+        }
+        const noteToFirestore = { ...note };
+        delete noteToFirestore.id;
+
+        await db.doc(`${ uid }/journal/notes/${ note.id }`).update( noteToFirestore );
+    }
+}
+````
+En `components/notes/NotesAppBar.js`
+* Se importan 3 elementos nuevos, el __useDispatch__, __useSelector__ que son CustomHook de Redux y la acción recién creada `startSaveNote`.
+````
+import { useDispatch, useSelector } from "react-redux";
+import { startSaveNote } from "../../actions/notes";
+````
+* Implementamos el __useDispatch__ para disparar las acciones.
+* Buscamos el estado que esta en Redux, especificamente `active`.
+* Para luego crear una función que dispare la acción `startSaveNote`, que guardará en BD de __Firebase__ el contendio que es recibido del estado de Redux.
+````
+const dispatch = useDispatch();
+const { active } = useSelector( state => state.notes );
+
+const handleSave = () =>{
+    
+    dispatch( startSaveNote( active ) );
+}
+````
+* Agregamos la función en el botón `Save`.
+````
+<button 
+    className="btn"
+    onClick={ handleSave }
+>
+    Save
+</button>
+````
+----
