@@ -1156,3 +1156,103 @@ import Swal from 'sweetalert2';
 })
 ````
 ----
+# App React Redux - CRUD Firebase
+En este punto se hará la carga de las notas hacia Firebase en su BD.
+
+<img src="https://dc722jrlp2zu8.cloudfront.net/media/cache/4d/fe/4dfe821d04bcc58a94233a6a027aacde.webp" alt="Logo Redux" width="320"/>
+
+----
+### 1.- NotesReducer 
+Se crea un nuevo Reducer para el manejo del CRUD en __Firebase__.
+
+Paso a Seguir:
+* Crear un nuevo types en `types/types.js`.
+* Creación de `notesReducer` para el manejo de los nuevos estados en la aplicación.
+* Agregar el nuevo __Reducer__ en store de __Redux__.
+* Crear la primera acción a disparar, que registrará la creación de una nueva nota en BD.
+* Nuevo evento en el componente __Sidbar__.
+
+En `types/types.js`
+* Se crea las diferentes opciones para el futuro CRUD.
+````
+notesAddNew: '[Notes] New Note',
+notesActive: '[Notes] Set Active Note',
+notesLoad: '[Notes] Load Note',
+notesUpdated: '[Notes] Updated Note',
+notesDelete: '[Notes] Delete Note',
+````
+En `reducers/notesReducer.js`
+* Se crea el estado inicial del state para el reducer.
+```` 
+const initialState ={
+    notes: [],
+    active: null
+}
+```` 
+* Creamos la función Reducer que almacenará los diferentes camibos al state.
+```` 
+
+export const notesReducer = (state = initialState, action) => {
+    switch ( action.type ) {
+
+        default:
+            return state;
+    }
+}
+```` 
+En `store/store.js`
+* Agregamos el nuevo reducer recien creado _(no olvidar la importación)_.
+````
+const reducers = combineReducers({
+    auth: authReducer,
+    ui: uiReducer,
+    notes: notesReducer,
+    
+})
+````
+En `actions/notes.js`
+* Realizamos la importación de `db` donde podremos realizar el registro en __Firebase__.
+````
+import { db } from '../firebase/firebaseConfig';
+````
+* Creamos la primera acción asíncrona llamada `startNewNote` que retornará un callback.
+    * Este return sera asíncrono y recibira en los parametros el `dispatch` y `getState` _(Este ultimo tomando todos los state que esten disponibles)_.
+    * Desestructuramos el `uid` que se usará para mandarlo como identificador.
+    * Creamos un objeto literario nuevo con algunos atributos.
+    * finalmente creamos en la BD de Firebase, el nuevo registro, con un `uid` especifico del cliente, ademas del agregarle el nuevo objeto.
+````
+export const startNewNote = () =>{
+    return async( dispatch, getState ) => {
+        const { uid } = getState().auth;
+        
+        const newNote = {
+            title: '',
+            body: '',
+            date: new Date().getTime()
+        }
+        
+        const doc = await db.collection(`${uid}/journal/notes`).add( newNote );
+    }
+}
+````
+En `components/journal/Sodbar.js`
+* Importamos la acción recién creada.
+````
+...
+import { startNewNote } from '../../actions/notes';
+...
+````
+* Creamos la función `handleAddNew` que realizará el disparo de la acción asíncrona para crear una nueva nota.
+````
+const handleAddNew = () => {
+    dispatch( startNewNote() )
+}
+````
+* Agregamos en el `<div>` el evento onClick, con la función `handleAddNew`.
+````
+ <div 
+    className="journal__new-entry"
+    onClick={ handleAddNew }
+>
+````
+----
