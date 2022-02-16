@@ -1752,3 +1752,47 @@ const handleFileChange = (e) => {
 </button>
 ````
 ----
+### 6,5.- Actualizar el url de la nota activa
+En este punto ya tenemos la subida del archivo, ahora falta mostrarlo en la aplicación.
+
+Pasos a Seguir:
+* Modificar la acción asíncrona `startUploading` para agregar una alerta y ademas de actualizar el estado de `action` especificamente la url.
+* Modificar componente __NoteScreen__ para mostrar la imagen.
+
+En `actions/notes.js`
+* Agregamos una alerta de "Loading" de `Swal` en la acción `startUploading` y al final de la función realizamos el `Swal.close()`.
+* De la constante `fileUrl` se lo asignamos a `activeNote.url`, para disparar la acción de guardado `startSaveNote` para actualizar los datos en la BD de __Firebase__.
+````
+...
+Swal.fire({
+    title: 'Uploading...',
+    text: 'Please wait...',
+    allowOutsideClick: false,
+    didOpen: () => {
+        Swal.showLoading();
+    }
+});
+
+const fileUrl = await fileUpload( file );
+activeNote.url = fileUrl;
+
+dispatch( startSaveNote( activeNote ))
+
+Swal.close();
+````
+En `components/notes/NoteScreen.js`
+* Agregamos una condición si viene el `note.url` se mostrará en `<img>`.
+````
+{
+    (note.url) &&
+
+    <div className="notes__image">
+        <img 
+            src={note.url}
+            alt="image"
+            width="500px"
+        />
+    </div>
+}
+````
+----
