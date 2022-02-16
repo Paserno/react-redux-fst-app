@@ -1261,12 +1261,12 @@ const handleAddNew = () => {
 En este punto se realizará la carga de Firebase.
 
 Pasos a Seguir:
-* Creamos nuevos `case` en el switch del __nodesReducer__.
+* Creamos nuevos `case` en el switch del __notesReducer__.
 * Agregamos 2 nuevas acciónes que pueden ser disparadas sincronicamente.
 * Se crea un `helper/` que hará la carga de las notas.
 * Se dispará la acción `setNotes` en el componente __AppRouter__ en su useEffect.
 
-En `reducers/nodesReducer.js`
+En `reducers/notesReducer.js`
 * Se importa los types.
 ````
 import { types } from '../types/types';
@@ -1514,7 +1514,7 @@ const { body, title } = formValues;
 const activeId = useRef( note.id ); 
 ````
 * Creamos este primer __useEffect__, para el caso cuando se seleccione otra nota, se le pasa como dependencia `note` y `reset`.
-    * La comparación evaluará si `node.id` _(el valor que es tomado de Redux)_ es diferente a `activeId.current` el valor de __useRef__, en el caso que sean diferentes se le pasará a la función `reset` los nuevos valores, y actualizando el valor de `activeId.current` _(para no provocar un bucle)_.
+    * La comparación evaluará si `note.id` _(el valor que es tomado de Redux)_ es diferente a `activeId.current` el valor de __useRef__, en el caso que sean diferentes se le pasará a la función `reset` los nuevos valores, y actualizando el valor de `activeId.current` _(para no provocar un bucle)_.
 
 ````
 useEffect(() => {
@@ -1599,5 +1599,51 @@ const handleSave = () =>{
 >
     Save
 </button>
+````
+----
+### 5.- Actualizar Contenido Guardado en Sidebar 
+Actualmente cuando se guarda una nota, solo se guarda en BD, pero no en el componente lateral _(Sidebar)_, para esto se realizará una acción que haga el refresh del componente.
+
+Pasos a Seguir:
+* Se agregará un `case` nuevo el reducer `notesReducer`.
+* Se creará la acción nuevo llamada `refreshNote` que será disparada por otra acción, la que realize el guardado en la BD, ademas agregar un mensaje de guardado.
+
+En `reducers/notesReducer.js`
+* Se crea el nuevo case con el tipo `notesUpdated`.
+* En el return, se conservará el estado, ademas de realizar un `.map()` para crear un arreglo nuevo, se hará una condición en el caso que el `note.id` sea igual al id del payload que fue enviado, se remplazará el contenido que se tiener en el estado, en el caso que no sea igual las `ids` no pasará nada.
+````
+case types.notesUpdated:
+    return {
+        ...state,
+        notes: state.notes.map(
+            note => note.id === action.payload.id
+                ? action.payload.note
+                : note
+        )
+    }
+````
+En `actions/notes.js`
+* Realizamos la importación de Sweetalert2.
+````
+import Swal from 'sweetalert2';
+````
+* Creamos la nueva acción que recibira en los parametros `id` y `note`.
+* En el payload se enviará el `id` y tambien en `note` le mandamos la id y usamos el __operador spread__, para no perder el `key` del componente.
+````
+export const refreshNote = ( id, note ) => ({
+    type: types.notesUpdated,
+    payload: {
+        id,
+        note: {
+            id,
+            ...note
+        }
+    }
+})
+````
+* Al final de la acción `startSaveNote` agregamos el disparo de la acción `refreshNote`, ademas de agregarle una alerta de que fue guardado.
+````
+dispatch( refreshNote( note.id, noteToFirestore) );
+Swal.fire('Saved', note.title, 'success');
 ````
 ----
