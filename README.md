@@ -1647,3 +1647,108 @@ dispatch( refreshNote( note.id, noteToFirestore) );
 Swal.fire('Saved', note.title, 'success');
 ````
 ----
+### 6.- Subir Img
+En este punto se hará la subida de la imagen.
+
+Paso a Seguir:
+* Crear un Helper que pueda realizar el fetch con el metodo POST, hacia __Cloudinary__ para subir la imagen.
+* Crear la acción en `actions/notes.js` que dispare el guardado.
+* Crear adaptar el componente __NotesAppBar__ para recibir una imágen.
+
+En `helpers/fileUpload.js` 
+* Se crea el helper `fileUpload` asíncrono, que recibe como parametro `file`.
+* Almacenamos el url de la subida en una constante (En esta caso el url de __[Cloudinary](https://cloudinary.com/documentation/admin_api)__).
+* Utilizamos la clase `FormData()` propia de JavaScript, para entregarle algunas propiedades necesarias con el metodo `.append`.
+    * Agregamos el `upload_preset` con el nombre predeterminado de la subida de __Cloudinary__.
+    * Como ultimo se agrega el `file` con el archivo que se subira _(imágen)_.
+* Creamos un try-catch, ya que puede existir algunos errores.
+    * Creamos el fetch, con el metodo __POST__, enviando en el body, el contenido de `formData`.
+    * Se crea una condición en el caso que todo salga bien, se recibirá la respuesta de __Cloudinary__, ademas de retornar el `secure_url` de la imagen _(https)_.
+    * En el caso de tener problemas se mandará un error, que sera capturado por el catch.
+````
+export const fileUpload = async( file ) => {
+    const cloundURL = 'https://api.cloudinary.com/v1_1/:cloud_name/upload';
+
+    const formData = new FormData();
+    formData.append('upload_preset', ':nombre_predeterminado');
+    formData.append('file', file);
+
+    try {
+        const resp = await fetch( cloundURL, {
+            method: 'POST',
+            body: formData
+        });
+
+        if ( resp.ok ){
+            const cloudResp = await resp.json();
+            return cloudResp.secure_url;
+        } else {
+            throw await resp.json();
+        }
+    } catch (error) {
+        throw error;
+    }
+}
+````
+
+<img src="https://res.cloudinary.com/dptnoipyc/image/upload/v1644975595/vutyiuerckou6h5zyubc.png" alt="form-data" width="490"/>
+
+En `actions/notes.js`
+* Se importa el helper.
+````
+...
+import { fileUpload } from '../helpers/fileUpload';
+````
+* Creamos la nueva acción asíncrona que recibirá `file`.
+* Obtenemos el estado con `getState().notes` del reducer, especifiamente `active` asignandole un nuevo nombre `activeNote`.
+* Le mandamos el archivo al helper y tenemos como resultado el `fileUrl` que retorna.
+````
+export const startUploading = ( file ) => {
+    return async( dispatch, getState ) => {
+        
+        const { active: activeNote } = getState().notes;
+
+        const fileUrl = await fileUpload( file );
+
+        console.log(fileUrl);
+    }
+}
+````
+En `components/notes/NoteAppBar.js`
+* Creamos la función y hacemos referencia a un elemento input que se creo, y le damos el evento `click()`.
+````
+const handlePictureClick = () => {
+    document.querySelector('#fileSelector').click();
+}
+````
+* Creamos la función `handleFileChange` que recibe por parametro el `e` que viene el evento.
+* Toma el elemento que viene en `e.target.files[0]` el arreglo 0, para almacenarlo en una variable.
+* Hacemos una condición, en el caso que venga el archivo, se disparará a la acción `startUploading` con el archivo.
+````
+const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if( file ){
+        dispatch( startUploading( file ) );
+    }
+}
+````
+* Creamos un nuevo input, le damos un id para que el botón lo pueda identificar, tipo `file`, le damos un nombre, y que no sea visible, ademas de agregarle la función `handleFileChange`.
+````
+<input 
+    id="fileSelector"
+    type="file"
+    name="file"
+    style={{ display:"none"}}
+    onChange={ handleFileChange }
+/>
+````
+* Le asignamos la función `handlePictureClick` al botón, con esto pudiendo activar el input invisible que tiene otra función.
+````
+<button
+    className="btn"
+    onClick={ handlePictureClick }
+>
+    Picture
+</button>
+````
+----
