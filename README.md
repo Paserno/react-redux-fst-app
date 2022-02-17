@@ -1161,7 +1161,7 @@ import Swal from 'sweetalert2';
 # App React Redux - CRUD Firebase
 En este punto se hará la carga de las notas hacia Firebase en su BD.
 
-<img src="https://dc722jrlp2zu8.cloudfront.net/media/cache/4d/fe/4dfe821d04bcc58a94233a6a027aacde.webp" alt="Logo Redux" width="320"/>
+<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Firebase_Logo.svg/1280px-Firebase_Logo.svg.png" alt="Logo Firebase" width="320"/>
 
 ----
 ### 1.- NotesReducer 
