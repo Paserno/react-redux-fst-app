@@ -18,6 +18,7 @@ Otros
 * __[Validator.js](https://www.npmjs.com/package/validator)__
 * __[Sweet Alert 2](https://sweetalert2.github.io)__
 * __[Moment JS](https://momentjs.com)__
+* __[Animate.css](https://animate.style)__
 
 
 ----
@@ -1854,4 +1855,137 @@ const handleDelete = () => {
     Delete
 </button>
 ````
+----
+### 8.- Purgar las notas en un logout - Animación
+Se realiza la limpieza del estado de notas y ademas algunos detalles con animaciones.
+
+Pasos a Seguir:
+* Agregar opciones nuevas en los types.
+* Adaptamos el reducer para recibir las acciones.
+* Creamos las nuevas acciones de limpieza del estado, al realizar el logout.
+* Se agregan algunas animaciones con la libreria __Animate.css__.
+
+
+En `types/types.js`
+* Se agregan 3 nuevas opciones para usar.
+````
+notesFileUrl: '[Notes] Updated Image Url',
+notesLogoutCleaning: '[Notes] Logout Cleaning',
+notesClose: '[Notes] Close Note'
+````
+En `reducers/notesReducer.js`
+* Creamos el case `notesAddNew` lo que hará es actualizar el Sidebar para que se muestre la nueva nota.
+````
+case types.notesAddNew:
+    return {
+        ...state,
+        notes: [ ...state.notes, action.payload]
+    }
+````
+* Esta acción limpia el contenido que esta activo `active`.
+````
+case types.notesClose:
+    return {
+        ...state,
+        active: null
+    }
+````
+* Cuando se realize el logout se limpiará todas las notas y dejara el estado de `active` en null.
+````
+case types.notesLogoutCleaning:
+    return { 
+        ...state,
+        active: null,
+        notes: []
+    }
+````
+En `actions/notes.js`
+* Se crea la acción sincrona `addNewNote` que recibe por parametro la `id` y `note`, esta acción hará que el reducer muestre la nueva nota cuando sea creada.
+````
+export const addNewNote = ( id, note ) => ({
+    type: types.notesAddNew,
+    payload: {
+        id, 
+        ...note
+    }
+})
+````
+* En la acción asíncrona `startNewNote` se agrego el disparlo de la acción `addNewNote`, para cuando se cree una nueva nota se mueste.
+````
+dispatch(addNewNote( doc.id, newNote));
+````
+* Esta acción activará el case que hace que se limpie el estado `active`.
+````
+export const CloseNote = () => ({
+    type: types.notesClose
+})
+````
+* Se adapta la acción `startDeleting` asíncrona, para mostrar un mensaje de advertencia que se eliminará la nota, usando __[Sweetalert2](https://sweetalert2.github.io)__.
+````
+export const startDeleting = ( id ) => {
+    return ( dispatch, getState ) => {
+
+        const { uid } = getState().auth;
+        Swal.fire({
+            title: 'Are you sure?',
+            iconColor:'red',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!'
+          }).then((result) => {
+            if (result.isConfirmed) {
+
+                db.doc(`${ uid }/journal/notes/${ id }`).delete();
+                dispatch( deleteNote(id) );
+
+              Swal.fire(
+                  'Deleted!',
+                  'Your note has been deleted.',
+                  'success'
+              )
+            }
+          })
+    }
+} 
+````
+* Se crea la acción que realizará la limpieza de las notas cuando se haga el logout.
+````
+export const noteLogout = () => ({
+    type: types.notesLogoutCleaning
+});
+````
+En `actions/auth.js`
+* En la acción asíncrona `startLogout` se agrega el disparo de la acción de `noteLogout` que hará la limpieza de las notas. _(No olvidar hacer la importación)_
+````
+export const startLogout = () =>{
+    return async( dispatch ) => {
+        await firebase.auth().signOut();
+
+        dispatch( logout() );
+        dispatch(noteLogout());
+    }
+    
+}
+````
+En `components/notes/NoteScreen.js`
+* Se crea la función `handleClose` que disparará la acción que deja en null el estado `active`, haciendo que se cierre la nota.
+````
+ const handleClose = () => {
+        dispatch(CloseNote());
+    }
+````
+* Este es el nuevo botón que se implemento que activará la función
+````
+<button 
+    className="btn btn-close"
+    onClick={ handleClose }
+>
+    Close
+</button>
+````
+Se Agregaron algunas animaciones con [Animate.css](https://animate.style)
+
 ----

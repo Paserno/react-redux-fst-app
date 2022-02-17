@@ -19,6 +19,7 @@ export const startNewNote = () =>{
         const doc = await db.collection(`${uid}/journal/notes`).add( newNote );
         
         dispatch( activeNote( doc.id, newNote ));
+        dispatch(addNewNote( doc.id, newNote));
     }
 }
 
@@ -29,6 +30,18 @@ export const activeNote = ( id ,note ) => ({
         ...note
     }
 });
+
+export const addNewNote = ( id, note ) => ({
+    type: types.notesAddNew,
+    payload: {
+        id, 
+        ...note
+    }
+})
+
+export const CloseNote = () => ({
+    type: types.notesClose
+})
 
 export const startLoadingNotes = ( uid ) => {
     return async(dispatch) => {
@@ -101,12 +114,31 @@ export const startUploading = ( file ) => {
 
 
 export const startDeleting = ( id ) => {
-    return async( dispatch, getState ) => {
+    return ( dispatch, getState ) => {
 
         const { uid } = getState().auth;
-        await db.doc(`${ uid }/journal/notes/${ id }`).delete();
+        Swal.fire({
+            title: 'Are you sure?',
+            iconColor:'red',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!'
+          }).then((result) => {
+            if (result.isConfirmed) {
 
-        dispatch( deleteNote(id) );
+                db.doc(`${ uid }/journal/notes/${ id }`).delete();
+                dispatch( deleteNote(id) );
+
+              Swal.fire(
+                  'Deleted!',
+                  'Your note has been deleted.',
+                  'success'
+              )
+            }
+          })
     }
 } 
 
@@ -114,3 +146,7 @@ export const deleteNote = ( id ) => ({
     type: types.notesDelete,
     payload: id
 })
+
+export const noteLogout = () => ({
+    type: types.notesLogoutCleaning
+});

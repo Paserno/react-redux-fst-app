@@ -19,6 +19,11 @@
     }
     
 }
+.btn-close{
+    &:hover{
+        color: $eliminar;
+    }
+}
 
 .btn-primary {
     background-color: $primary;

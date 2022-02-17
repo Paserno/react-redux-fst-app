@@ -12,24 +12,23 @@ export const NoteScreen = () => {
 
   const { active:note } = useSelector( state => state.notes );
   const [ formValues, handleInputChange, reset ] = useForm( note );
-  const { body, title, id, url } = formValues;
+  const { body, title, id } = formValues;
  
   const activeId = useRef( note.id ); //Guardar una variable mutable
 
   useEffect(() => {
     // 274
     if( note.id !== activeId.current ){
-      // console.log('first: ', note.id, ' Secund: ', activeId.current );
+      
       reset( note );
       activeId.current = note.id;
     }
   }, [note, reset])
   
   useEffect(() => {
-    console.log(url);
     dispatch( activeNote( formValues.id, {...formValues}) )
 
-  }, [formValues])
+  }, [formValues, dispatch])
 
   const handleDelete = () => {
     dispatch(startDeleting(id));
@@ -38,7 +37,7 @@ export const NoteScreen = () => {
 
 
   return (
-      <div className="note__main-content">
+      <div className="note__main-content animate__animated animate__fadeIn animate__faster">
 
           <NotesAppBar />
           
@@ -66,9 +65,9 @@ export const NoteScreen = () => {
               (note.url) &&
             
             <div className="notes__image">
-              <img 
+              <img
                 src={note.url}
-                alt="image"
+                alt="imageurl"
                 width="500px"
               />
            

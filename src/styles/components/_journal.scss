@@ -50,6 +50,7 @@
  
     &::-webkit-scrollbar {
         width: 15px;
+        
 
     }
     &::-webkit-scrollbar-thumb {
@@ -109,6 +110,19 @@
 .journal__entry-body{
     padding: 10px;
     width: 60%;
+    overflow-y: scroll;
+    &::-webkit-scrollbar {
+        width: 15px;
+        display: none;
+
+    }
+    &::-webkit-scrollbar-thumb {
+        background-clip: content-box;
+        border: 4px solid transparent;
+        border-radius: 7px;
+        box-shadow: inset 0 0 0 10px;
+    }
+    
 }
 
 .journal__entry-title{
