@@ -1,0 +1,14 @@
+{
+  "files": {
+    "main.css": "/react-redux-fst-app/static/css/main.42ed3667.css",
+    "main.js": "/react-redux-fst-app/static/js/main.f9c2a75a.js",
+    "static/media/fondo.jpg": "/react-redux-fst-app/static/media/fondo.3cdc8ae4bb2288d0b67c.jpg",
+    "index.html": "/react-redux-fst-app/index.html",
+    "main.42ed3667.css.map": "/react-redux-fst-app/static/css/main.42ed3667.css.map",
+    "main.f9c2a75a.js.map": "/react-redux-fst-app/static/js/main.f9c2a75a.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.42ed3667.css",
+    "static/js/main.f9c2a75a.js"
+  ]
+}
