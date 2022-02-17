@@ -12,7 +12,7 @@ export const NoteScreen = () => {
 
   const { active:note } = useSelector( state => state.notes );
   const [ formValues, handleInputChange, reset ] = useForm( note );
-  const { body, title, id } = formValues;
+  const { body, title, id, url } = formValues;
  
   const activeId = useRef( note.id ); //Guardar una variable mutable
 
