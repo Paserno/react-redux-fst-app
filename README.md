@@ -1796,3 +1796,62 @@ En `components/notes/NoteScreen.js`
 }
 ````
 ----
+### 7.- Borrar una nota
+Se creo un botón que realiza una eliminacion logica en la BD de Firebase.
+
+Pasos a Seguir:
+* Se crea un nuevo case en el reducer `notesReducer`, que realizará el filtro de la nota eliminada, para devolver un estado nuevo, sin la nota que se elimino.
+* Se crea en `actions/notes` dos nuevas acciónes una sincrona y otra asíncrona, para el manejo de la eliminación.
+* Se creo un botón en el componente __NoteScreen__ para realizar la eliminación de la nota.
+
+En `reducers/notesReducer.js`
+* El nuevo `case` realizará un filtro que devolvera todo el estado menos el valor que venga en el payload.
+````
+case types.notesDelete:
+    return {
+        ...state,
+        active: null,
+        notes: state.notes.filter( note => note.id !== action.payload )
+    }
+````
+En `actions/notes.js`
+* Se crea la acción `deleteNote` lo que hará es recibir un id para luego enviarla por el payload.
+````
+export const deleteNote = ( id ) => ({
+    type: types.notesDelete,
+    payload: id
+})
+````
+* Se crea una acción llamada `startDeleting` que obtendra por parametros la `id`, para realizar la eliminación de la nota, y luego enviar la `id` a la acción `deleteNote` que eliminará en los estados la nota ya eliminada en BD.
+````
+export const startDeleting = ( id ) => {
+    return async( dispatch, getState ) => {
+
+        const { uid } = getState().auth;
+        await db.doc(`${ uid }/journal/notes/${ id }`).delete();
+
+        dispatch( deleteNote(id) );
+    }
+}
+````
+En `components/notes/NoteScreen.js`
+* Desestructuramos el id ahora.
+````
+const { body, title, id } = formValues;
+````
+* Creamos la función del nuevo botón que se creará, que hará el disparo de la acción `startDeleting` pasandole por parametro el id que se desestructuro.
+````
+const handleDelete = () => {
+    dispatch(startDeleting(id));
+  }
+````
+* Creamos el botón y le pasamos algunas clases para darle estilos, ademas del __onClick__ con la función recién mencionada.
+````
+<button 
+    className="btn btn-danger"
+    onClick={ handleDelete }
+>
+    Delete
+</button>
+````
+----

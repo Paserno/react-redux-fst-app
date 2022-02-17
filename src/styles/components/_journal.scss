@@ -70,8 +70,11 @@
     border-radius: 4px;
     color: $light-react;
     display: flex;
+    justify-content: space-between;
     margin-bottom: 8px;
     overflow: hidden;
+    height:75px; 
+    
 
     
 
@@ -98,11 +101,14 @@
 
 .journal__entry-picture{
     height: 75px;
-    width: 75px;
+    width: 25%;
+    margin-left: -5px;
+    
 }
 
 .journal__entry-body{
     padding: 10px;
+    width: 60%;
 }
 
 .journal__entry-title{

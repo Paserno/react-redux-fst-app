@@ -55,7 +55,9 @@
 
 .notes__image img{
     box-shadow: 5px 5px $react;
-    height: 250px;
+    max-height: 450px;
+    border-radius: 5px;
+    min-height: 250px;
     object-fit: cover;
 
 }
