@@ -33,6 +33,9 @@ npm start
 ````
 <br>
 
+
+> __Elemento Posterior 👀:__ __[First MERN - Frontend](https://github.com/Paserno/MERN-Frontend-first)__
+
 ----
 ### 1.- Inicio del Proyecto - Rutas
 En este punto se crearán las carpetas con los archivos respectivos, ademas de establecer las rutas de __React Router v5__, proximamente actualizar a la version 6:
